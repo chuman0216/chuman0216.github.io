@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DHT11 Sensor Data</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let temperatureData = [];
+        let humidityData = [];
+        let labels = [];
+
+        async function fetchData() {
+            const response = await fetch('/data');
+            const data = await response.json();
+
+            // Update data arrays
+            labels = data.timestamps;
+            temperatureData = data.temperature;
+            humidityData = data.humidity;
+
+            updateChart();
+        }
+
+        function updateChart() {
+            myChart.data.labels = labels;
+            myChart.data.datasets[0].data = temperatureData;
+            myChart.data.datasets[1].data = humidityData;
+            myChart.update();
+        }
+
+        setInterval(fetchData, 2000);
+    </script>
+</head>
+<body>
+    <h1>DHT11 Sensor Data</h1>
+    <canvas id="sensorChart" width="400" height="200"></canvas>
+
+    <script>
+        const ctx = document.getElementById('sensorChart').getContext('2d');
+        const myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],  // Timestamps
+                datasets: [
+                    {
+                        label: 'Temperature (°C)',
+                        data: [],  // Temperature data
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Humidity (%)',
+                        data: [],  // Humidity data
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        fill: true,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Value'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
